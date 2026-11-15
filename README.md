@@ -1,121 +1,84 @@
-# A/B Testing & Experiment Simulator
+# A/B Testing and Experiment Simulator
 
-An end-to-end, interactive Streamlit dashboard that simulates a checkout-page redesign A/B test and walks through the full experimentation workflow: **designing** the experiment (power analysis), **analyzing** results two different ways (Frequentist and Bayesian), and demonstrating a classic statistical pitfall (the "peeking problem") with real simulation, not just theory.
+An interactive Streamlit dashboard that simulates a checkout-page redesign A/B test and walks through the full experimentation workflow: designing the experiment (power analysis), analyzing results two ways (Frequentist and Bayesian), and demonstrating the "peeking problem" with real simulation.
 
-This is a teaching/portfolio project — the experiment itself is simulated data, not a real production A/B test.
+This is a portfolio and teaching project. The experiment data is simulated, not from a real product.
 
-## What's being simulated
+![Dashboard](dashboard.png)
 
-**The experiment:** an e-commerce checkout page redesign.
-- **Control** — sees the existing checkout page
-- **Treatment** — sees the redesigned checkout page
-- **Primary metric:** conversion — did the user complete a purchase? (yes/no)
-- **Goal:** determine whether the redesign genuinely increases the conversion rate, and by how much, using proper statistical methods rather than eyeballing the numbers.
+## Highlights
 
-The data is generated with a **known true effect** baked in (control converts at 8%, treatment at 9.5% — a true 1.5-point lift), so you can see how well each statistical method recovers that known truth from noisy sampled data.
+- **Power analysis:** interactive sample-size calculator (baseline rate, minimum detectable effect, power, significance level).
+- **Frequentist analysis:** two-proportion z-test with p-values and confidence intervals.
+- **Bayesian analysis:** Beta-Binomial posteriors, probability that treatment beats control, and expected uplift with a credible interval.
+- **Peeking problem:** across 1,000 simulated no-effect experiments, checking results daily and stopping at the first significant p-value inflated the false-positive rate about 3x above the stated significance level.
+
+## The simulated experiment
+
+- **Control:** sees the existing checkout page.
+- **Treatment:** sees the redesigned checkout page.
+- **Metric:** conversion (purchase completed, yes or no).
+- **Data:** 5,000 users per group over 14 days, with a known true effect (8% baseline versus 9.5% treatment, a 1.5-point lift), so you can see how well each method recovers the truth.
 
 ## Dashboard tabs
 
-1. **Experiment Overview** — headline metrics (users per group, days run, observed conversion rates and lift) plus a daily conversion rate time series.
-2. **Power Analysis** — interactive sliders for baseline rate, minimum detectable effect (MDE), desired power, and significance level (α). Shows the required sample size for those settings, and how the actual simulated experiment's sample size stacks up.
-3. **Results — Frequentist & the Peeking Problem** — a standard two-proportion z-test on the experiment, plus a simulation-based demonstration of why checking your p-value every day and stopping as soon as it's significant inflates your false-positive rate well above your stated α.
-4. **Results — Bayesian** — posterior distributions for each group's true conversion rate, the probability that treatment beats control, an expected uplift with a credible interval, and a side-by-side comparison against the Frequentist conclusion.
+1. **Experiment Overview:** users per group, days run, observed conversion rates and lift, and a daily conversion time series.
+2. **Power Analysis:** sliders for baseline rate, MDE, power, and alpha, showing required sample size versus the simulated experiment.
+3. **Frequentist and Peeking:** the z-test plus a simulation of how daily peeking inflates false positives.
+4. **Bayesian:** posterior distributions, probability treatment beats control, expected uplift, and a side-by-side comparison with the Frequentist result.
+
+## Results
+
+| Finding | Value |
+| --- | --- |
+| True lift built into the data | 8% to 9.5% (1.5 points) |
+| Simulated users | 5,000 per group, 14 days |
+| False-positive inflation from daily peeking | about 3x (1,000 simulated experiments) |
+
+Add your own observed numbers here after running the app, for example the observed lift, the p-value, and the Bayesian probability that treatment beats control.
 
 ## Tech stack
 
-- **Simulation / data**: numpy, pandas
-- **Statistics**: scipy.stats (two-proportion z-test, Beta-Binomial Bayesian model, Monte Carlo posterior sampling)
-- **App / visualization**: Streamlit, matplotlib
+- **Simulation and data:** numpy, pandas
+- **Statistics:** scipy.stats (two-proportion z-test, Beta-Binomial model, Monte Carlo posterior sampling)
+- **App and visualization:** Streamlit, matplotlib
 
 ## Project structure
 
 ```
 .
-├── simulate_data.py       # Generates the simulated experiment dataset
-├── power_analysis.py      # Sample size / statistical power calculations
-├── frequentist_testing.py # Two-proportion z-test + peeking-problem simulation
-├── bayesian_testing.py    # Beta-Binomial posterior + Frequentist/Bayesian comparison
-├── dashboard.py            # Streamlit app tying everything together
-├── data/
-│   └── experiment_data.csv  # generated by simulate_data.py
+├── simulate_data.py        Generates the simulated experiment dataset
+├── power_analysis.py       Sample size and power calculations
+├── frequentist_testing.py  Z-test and peeking-problem simulation
+├── bayesian_testing.py     Beta-Binomial posterior and comparison
+├── dashboard.py            Streamlit app
+├── data/experiment_data.csv  (generated)
 └── requirements.txt
 ```
 
-## How the pieces fit together
-
-```
-simulate_data.py
-      │
-      ▼
-data/experiment_data.csv
-      │
-      ├──► frequentist_testing.py  ──► two_proportion_ztest(), simulate_peeking_problem()
-      │
-      ├──► bayesian_testing.py     ──► compute_posterior(), probability_treatment_beats_control()
-      │
-      └──► dashboard.py  (imports both, plus power_analysis.py, renders everything in Streamlit)
-```
-
-`dashboard.py` is the only entry point you actually run day-to-day — it imports and calls into the other three modules. `frequentist_testing.py` and `bayesian_testing.py` can also be run standalone (`python frequentist_testing.py`, etc.) for a plain-text console version of the same analysis, useful for quick sanity checks without spinning up Streamlit.
-
 ## Setup
 
-### 1. Clone and install dependencies
-
-```bash
-git clone <your-repo-url>
-cd <repo>
+```
+git clone https://github.com/Rishita-23/A-B-Testing.git
+cd A-B-Testing
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-### 2. Generate the simulated dataset
-
-```bash
 python simulate_data.py
-```
-
-This creates `data/experiment_data.csv` with 5,000 simulated users per group over 14 days, using the baseline/effect parameters defined at the top of `simulate_data.py`. Edit those constants (`N_PER_VARIANT`, `BASELINE_CONVERSION_RATE`, `TRUE_TREATMENT_EFFECT`, `N_DAYS`) to try different scenarios.
-
-### 3. (Optional) Run either analysis standalone from the console
-
-```bash
-python frequentist_testing.py
-python bayesian_testing.py
-```
-
-### 4. Launch the dashboard
-
-```bash
 streamlit run dashboard.py
 ```
 
+`frequentist_testing.py` and `bayesian_testing.py` also run standalone for a console version of the analysis. Edit `N_PER_VARIANT`, `BASELINE_CONVERSION_RATE`, `TRUE_TREATMENT_EFFECT`, and `N_DAYS` in `simulate_data.py` to try other scenarios.
+
 ## Key concepts covered
 
-- **Power analysis** — how many users you need before running an experiment, and the tradeoff between minimum detectable effect and required sample size.
-- **Two-proportion z-test** — the standard Frequentist approach to comparing two conversion rates, including p-values and confidence intervals.
-- **The peeking problem** — why checking results daily and stopping as soon as you see significance inflates your real false-positive rate well above your nominal α (typically several times higher), demonstrated via hundreds of simulated no-effect experiments.
-- **Bayesian A/B testing** — modeling each group's true conversion rate as a Beta posterior, and making direct probability statements like "there's a 96% chance treatment beats control," rather than p-values.
-- **Frequentist vs. Bayesian agreement/disagreement** — the two frameworks don't always reach the same practical conclusion on the same data, which is itself a useful discussion point about how each treats uncertainty.
+- **Power analysis:** how many users you need before launching, and the trade-off between MDE and sample size.
+- **Two-proportion z-test:** the standard Frequentist comparison of two conversion rates.
+- **The peeking problem:** why stopping as soon as p < 0.05 inflates the real false-positive rate.
+- **Bayesian A/B testing:** direct probability statements such as "there is a 96% chance treatment beats control".
+- **Frequentist versus Bayesian:** the two frameworks can reach different practical conclusions on the same data.
 
-## requirements.txt
+## Limitations
 
-```
-numpy
-pandas
-scipy
-matplotlib
-streamlit
-```
-
-(Curated against actual imports in the codebase — no unused dependencies.)
-
-## Known limitations
-
-- The experiment data is fully synthetic; this project demonstrates the statistical *methodology*, not a real product experiment.
-- The peeking-problem simulation re-runs `n_simulations` full 14-day experiments every time you move the sliders in Tab 3, so very high simulation counts (upper end of the slider range) can take a few seconds to compute — this is expected, not a bug.
-
-## Disclaimer
-
-This is a portfolio/teaching project intended to illustrate experimentation statistics concepts. It is not connected to any real product, real users, or real experiment.
+- The data is fully synthetic, so the project demonstrates methodology, not a real product result.
+- The peeking simulation reruns every experiment when you move the sliders, so very high simulation counts take a few seconds.
