@@ -4,8 +4,6 @@ An interactive Streamlit dashboard that simulates a checkout-page redesign A/B t
 
 This is a portfolio and teaching project. The experiment data is simulated, not from a real product.
 
-![Dashboard](dashboard.png)
-
 ## Highlights
 
 - **Power analysis:** interactive sample-size calculator (baseline rate, minimum detectable effect, power, significance level).
