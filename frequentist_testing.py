@@ -178,7 +178,7 @@ if __name__ == "__main__":
     print(f" Plain English : {result['summary']}")
 
     print("\n" + "-"*20)
-    print("PART 2: The Peeking Problem (500 simulated experiments, No true effect)")
+    print("PART 2: The Peeking Problem (1000 simulated experiments, No true effect)")
     peek_result = simulate_peeking_problem(
         baseline_rate = 0.08,
         n_per_day_per_group = 350,
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     print(f" with control and treatment given the IDENTICAL true conversion rate")
     print(f" (so ANY 'significant' result found is by definition a false positive).")
     print(f" Expaected false-positive rate(alpha) : {peek_result['alpha']*100:.1f}%")
-    print(f"ACTUAL false-positive rate, DAILY PEEKING : {peek_result['fixed_horizon_fpr']*100:.1f}%")
+    print(f"ACTUAL false-positive rate, DAILY PEEKING : {peek_result['fixed_fpr']*100:.1f}%")
     print("\n")
     inflation_factor = peek_result['peeking_fpr'] / peek_result['alpha']
     print(f" --> Peeking daily inflate your false-positive rate to about")

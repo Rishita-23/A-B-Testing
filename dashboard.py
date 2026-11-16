@@ -156,7 +156,7 @@ with tab2:
     mde_range = np.linspace(0.005, 0.03, 25)
     n_range = [required_sample_size(baseline_input, m, alpha= alpha_input, power=power_input)for m in mde_range]
     fig,ax = plt.subplots(figsize=(7,3.5))
-    ax.plot(mde_range*100, n_range, marker="o", marksize =3)
+    ax.plot(mde_range*100, n_range, marker="o", markersize =3)
     ax.set_xlabel("Minimum Detectable Effect (percentage points)")
     ax.set_ylabel("Required sample size per group")
     ax.set_title("Smaller effects require dramatically more users")
@@ -173,8 +173,8 @@ with tab3:
     )
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("p-value", f"{result['p-value']:.4f}")
-    col2.metric("Effect (treatment - control)", f"{result['effect']*100:+2f} pts")
+    col1.metric("p-value", f"{result['p_value']:.4f}")
+    col2.metric("Effect (treatment - control)", f"{result['effect']*100:+.2f} pts")
     col3.metric("Significant at α=0.05?","Yes" if result["significant"] else "No",)
 
     st.write(
@@ -295,7 +295,7 @@ with tab4:
                 color = "#ff7f0e")
     ax.fill_between(x, stats.beta.pdf(x, treatment_post_a, treatment_post_b), alpha= 0.3, color="#ff7f0e")
 
-    ax.set_xlable("True Conversion Rate")
+    ax.set_xlabel("True Conversion Rate")
     ax.set_ylabel("Posterior Density")
     ax.set_title("What we believe the true conversion rate is, after seeing the data")
     ax.legend()
